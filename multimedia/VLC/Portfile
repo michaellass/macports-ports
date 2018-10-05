@@ -163,6 +163,12 @@ if {(${subport} eq ${name}) || (${subport} eq "lib${name}")} {
     patchfiles-append \
                         patch-ffmpeg4-compat.diff
 
+    # Force use of old build system for XCode >= 10 (#57234)
+    if {[vercmp ${xcodeversion} 10.0] >= 0} {
+        patchfiles-append \
+                        buildfix-xcode10.diff
+    }
+
     post-patch {
         if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} == "libc++"} {
             reinplace "s:-lstdc\+\+:-lc++:" \
