@@ -4,6 +4,8 @@ PortSystem          1.0
 
 name                gnucobol
 version             3.1.2
+revision            1
+
 categories          lang
 maintainers         nomaintainer
 # Executables are GPL, libraries LGPL
@@ -26,13 +28,30 @@ checksums           md5     720d8425e4ac30b83b84f43ef08f9558 \
                     sha256  597005d71fd7d65b90cbe42bbfecd5a9ec0445388639404662e70d53ddf22574 \
                     size    2198512
 
-depends_lib         port:db48 \
-                    port:gettext \
+depends_lib         port:gettext \
                     port:gmp \
                     port:ncurses
 
-configure.cppflags-append -I${prefix}/include/db48
-configure.ldflags-append  -L${prefix}/lib/db48
+configure.args-append     --without-db \
+                          --without-json \
+                          --without-xml2
+
+variant isam description {Enable ISAM handler for indexed I/O} {
+    depends_lib-append        port:db53
+    configure.args-replace    --without-db --with-db
+    configure.cppflags-append -I${prefix}/include/db53
+    configure.ldflags-append  -L${prefix}/lib/db53
+}
+variant json description {Enable support for JSON GENERATE} {
+    depends_lib-append        port:json-c
+    configure.args-replace    --without-json --with-json
+}
+variant xml description {Enable support for XML GENERATE} {
+    depends_lib-append        port:libxml2
+    configure.args-replace    --without-xml2 --with-xml2
+}
+
+default_variants    +isam +json
 
 test.run            yes
 test.env            TERM=xterm-256color
